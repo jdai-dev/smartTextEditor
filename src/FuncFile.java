@@ -65,7 +65,7 @@ public class FuncFile {
         fileDialog.setVisible(true);
 
         if (fileDialog.getFile() != null) {
-            fileName = fileDialog.getName();
+            fileName = fileDialog.getFile();
             filePath = fileDialog.getDirectory();
             gui.window.setTitle(fileName);
         }
