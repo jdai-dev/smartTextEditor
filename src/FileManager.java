@@ -1,17 +1,19 @@
+import javax.swing.*;
 import javax.swing.text.AbstractDocument;
 import javax.swing.text.StyledDocument;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class FuncFile {
+public class FileManager {
     GUI gui;
     String fileName;
     String filePath;
 
-    public FuncFile(GUI gui) {
+    public FileManager(GUI gui) {
         this.gui = gui;
     }
 
@@ -96,5 +98,61 @@ public class FuncFile {
 
     public void exit(){
         System.exit(0);
+    }
+
+    // nested customized Action classes
+    public class NewAction extends AbstractAction {
+        public NewAction(){
+            super("New");
+            setEnabled(true);
+        }
+
+        public void actionPerformed(ActionEvent e){
+            newFile();
+        }
+    }
+
+    public class OpenAction extends AbstractAction {
+        public OpenAction(){
+            super("Open");
+            setEnabled(true);
+        }
+
+        public void actionPerformed(ActionEvent e){
+            open();
+        }
+    }
+
+    public class SaveAction extends AbstractAction {
+        public SaveAction(){
+            super("Save");
+            setEnabled(true);
+        }
+
+        public void actionPerformed(ActionEvent e){
+            save();
+        }
+    }
+
+    public class SaveAsAction extends AbstractAction {
+        public SaveAsAction(){
+            super("SaveAs");
+            setEnabled(true);
+        }
+
+        public void actionPerformed(ActionEvent e){
+            saveAs();
+        }
+    }
+
+    public class ExitAction extends AbstractAction {
+        public ExitAction(){
+            super("Exit");
+            setEnabled(true);
+        }
+
+        public void actionPerformed(ActionEvent e){
+            exit();
+        }
     }
 }

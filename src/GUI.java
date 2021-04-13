@@ -4,11 +4,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.event.UndoableEditEvent;
 import javax.swing.event.UndoableEditListener;
 import javax.swing.text.*;
-import javax.swing.undo.CannotRedoException;
-import javax.swing.undo.CannotUndoException;
-import javax.swing.undo.UndoManager;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.util.HashMap;
 
 public class GUI extends JFrame {
@@ -24,18 +20,17 @@ public class GUI extends JFrame {
     JMenuBar menuBar;
 
     // file menu
-    protected NewAction newAction;
-    protected OpenAction openAction;
-    protected SaveAction saveAction;
-    protected SaveAsAction saveAsAction;
-    protected ExitAction exitAction;
-
-    FuncFile file = new FuncFile(this);
+    FileManager file = new FileManager(this);
+    protected FileManager.NewAction newAction;
+    protected FileManager.OpenAction openAction;
+    protected FileManager.SaveAction saveAction;
+    protected FileManager.SaveAsAction saveAsAction;
+    protected FileManager.ExitAction exitAction;
 
     // undo helpers
-    protected UndoAction undoAction;
-    protected RedoAction redoAction;
-    protected UndoManager um = new UndoManager();
+    protected SmartUndoManager um = new SmartUndoManager(this);
+    protected SmartUndoManager.UndoAction undoAction;
+    protected SmartUndoManager.RedoAction redoAction;
 
     public GUI() {
         // set main window
@@ -100,10 +95,10 @@ public class GUI extends JFrame {
     protected JMenu createEditMenu() {
         JMenu menu = new JMenu("Edit");
 
-        undoAction = new UndoAction();
+        undoAction = um.new UndoAction();
         menu.add(undoAction);
 
-        redoAction = new RedoAction();
+        redoAction = um.new RedoAction();
         menu.add(redoAction);
 
         menu.addSeparator();
@@ -171,11 +166,11 @@ public class GUI extends JFrame {
     protected JMenu createFileMenu() {
         JMenu menu = new JMenu("File");
 
-        newAction = new NewAction();
-        openAction = new OpenAction();
-        saveAction = new SaveAction();
-        saveAsAction = new SaveAsAction();
-        exitAction = new ExitAction();
+        newAction = file.new NewAction();
+        openAction = file.new OpenAction();
+        saveAction = file.new SaveAction();
+        saveAsAction = file.new SaveAsAction();
+        exitAction = file.new ExitAction();
 
         menu.add(newAction);
         menu.add(openAction);
@@ -212,117 +207,6 @@ public class GUI extends JFrame {
                     ((changeLength == 1) ? ". " : "s. ") +
                     " Text length = " + document.getLength() +
                     "." + newline);
-        }
-    }
-
-    // helper classes
-    public class NewAction extends AbstractAction {
-        public NewAction(){
-            super("New");
-            setEnabled(true);
-        }
-
-        public void actionPerformed(ActionEvent e){
-            file.newFile();
-        }
-    }
-
-    public class OpenAction extends AbstractAction {
-        public OpenAction(){
-            super("Open");
-            setEnabled(true);
-        }
-
-        public void actionPerformed(ActionEvent e){
-            file.open();
-        }
-    }
-
-    public class SaveAction extends AbstractAction {
-        public SaveAction(){
-            super("Save");
-            setEnabled(true);
-        }
-
-        public void actionPerformed(ActionEvent e){
-            file.save();
-        }
-    }
-
-    public class SaveAsAction extends AbstractAction {
-        public SaveAsAction(){
-            super("SaveAs");
-            setEnabled(true);
-        }
-
-        public void actionPerformed(ActionEvent e){
-            file.saveAs();
-        }
-    }
-
-    public class ExitAction extends AbstractAction {
-        public ExitAction(){
-            super("Exit");
-            setEnabled(true);
-        }
-
-        public void actionPerformed(ActionEvent e){
-            file.exit();
-        }
-    }
-    public class UndoAction extends AbstractAction {
-        public UndoAction() {
-            super("Undo");
-            setEnabled(false);
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            try {
-                um.undo();
-            } catch (CannotUndoException ex) {
-                System.out.println("Unable to undo: " + ex);
-                ex.printStackTrace();
-            }
-            updateUndoState();
-            redoAction.updateRedoState();
-        }
-
-        protected void updateUndoState(){
-            if (um.canUndo()) {
-                setEnabled(true);
-                putValue(Action.NAME, um.getUndoPresentationName());
-            } else {
-                setEnabled(false);
-                putValue(Action.NAME, "Undo");
-            }
-        }
-    }
-
-    class RedoAction extends AbstractAction {
-        public RedoAction() {
-            super("Redo");
-            setEnabled(false);
-        }
-
-        public void actionPerformed(ActionEvent e) {
-            try {
-                um.redo();
-            } catch (CannotRedoException ex) {
-                System.out.println("Unable to redo: " + ex);
-                ex.printStackTrace();
-            }
-            updateRedoState();
-            undoAction.updateUndoState();
-        }
-
-        protected void updateRedoState() {
-            if (um.canRedo()) {
-                setEnabled(true);
-                putValue(Action.NAME, um.getRedoPresentationName());
-            } else {
-                setEnabled(false);
-                putValue(Action.NAME, "Redo");
-            }
         }
     }
 }
