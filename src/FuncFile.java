@@ -2,6 +2,7 @@ import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.IOException;
 
 public class FuncFile {
     GUI gui;
@@ -13,36 +14,39 @@ public class FuncFile {
     }
 
     public void newFile(){
-        gui.textArea.setText("");
-        gui.window.setTitle("Untitled");
+        gui.textPane.setText("");
+        gui.setTitle("Untitled");
         fileName = null;
         filePath = null;
     }
 
     public void open() {
-        FileDialog fileDialog = new FileDialog(gui.window, "Open", FileDialog.LOAD);
+        FileDialog fileDialog = new FileDialog(gui, "Open", FileDialog.LOAD);
         fileDialog.setVisible(true);
 
         if(fileDialog.getFile() != null) {
             fileName = fileDialog.getFile();
             filePath = fileDialog.getDirectory();
-            gui.window.setTitle(fileName);
+            gui.setTitle(fileName);
         }
 
+        FileReader reader = null;
+
         try {
-            BufferedReader br = new BufferedReader(new FileReader(filePath + fileName));
+            reader = new FileReader(filePath + fileName);
 
-            gui.textArea.setText("");
-
-            String line = null;
-
-            while ((line=br.readLine()) != null) {
-                gui.textArea.append(line + "\n");
-            }
-
-            br.close();
+            gui.textPane.read(reader,filePath + fileName);
         } catch (Exception e) {
             System.out.println("FILE NOT OPENED!");
+        } finally {
+            if (reader != null) {
+                try {
+                    reader.close();
+                } catch (IOException exception) {
+                    System.err.println("Error closing reader");
+                    exception.printStackTrace();
+                }
+            }
         }
     }
 
@@ -52,7 +56,7 @@ public class FuncFile {
         } else {
             try {
                 FileWriter fw = new FileWriter(filePath + fileName);
-                fw.write(gui.textArea.getText());
+                fw.write(gui.textPane.getText());
                 fw.close();
             } catch (Exception e) {
                 System.out.println("SOMETHING WRONG!");
@@ -61,18 +65,18 @@ public class FuncFile {
     }
 
     public void saveAs() {
-        FileDialog fileDialog = new FileDialog(gui.window, "Save As", FileDialog.SAVE);
+        FileDialog fileDialog = new FileDialog(gui, "Save As", FileDialog.SAVE);
         fileDialog.setVisible(true);
 
         if (fileDialog.getFile() != null) {
             fileName = fileDialog.getFile();
             filePath = fileDialog.getDirectory();
-            gui.window.setTitle(fileName);
+            gui.setTitle(fileName);
         }
 
         try {
             FileWriter fw = new FileWriter(filePath + fileName);
-            fw.write(gui.textArea.getText());
+            fw.write(gui.textPane.getText());
             fw.close();
         } catch (Exception e) {
             System.out.println("SOMETHING WRONG!");
