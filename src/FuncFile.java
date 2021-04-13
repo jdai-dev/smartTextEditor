@@ -1,3 +1,5 @@
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.StyledDocument;
 import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -36,6 +38,15 @@ public class FuncFile {
             reader = new FileReader(filePath + fileName);
 
             gui.textPane.read(reader,filePath + fileName);
+            StyledDocument styleDoc = gui.textPane.getStyledDocument();
+            if (styleDoc instanceof AbstractDocument) {
+                gui.doc = (AbstractDocument) styleDoc;
+            } else {
+                System.err.println("Text pane's document isn't an AbstractDocument!");
+                System.exit(-1);
+            }
+            gui.addListeners();
+
         } catch (Exception e) {
             System.out.println("FILE NOT OPENED!");
         } finally {

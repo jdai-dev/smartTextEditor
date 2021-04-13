@@ -20,37 +20,38 @@ public class GUI extends JFrame {
     String newline = "\n";
     HashMap<Object, Action> actions;
 
+    // top menu bar
+    JMenuBar menuBar;
+
+    // file menu
+    protected NewAction newAction;
+    protected OpenAction openAction;
+    protected SaveAction saveAction;
+    protected SaveAsAction saveAsAction;
+    protected ExitAction exitAction;
+
+    FuncFile file = new FuncFile(this);
+
     // undo helpers
     protected UndoAction undoAction;
     protected RedoAction redoAction;
     protected UndoManager um = new UndoManager();
 
-    // top menu bar
-    JMenuBar menuBar;
-    JMenu menuFile;
-
-    // file menu
-    JMenuItem miNew, miOpen, miSave, miSaveAs, miExit;
-
-    FuncFile file = new FuncFile(this);
-
     public GUI() {
         // set main window
         super("Smart Text Editor"); // design: name
-        this.setSize(800, 600); // design: default size
-        this.setLayout(new BorderLayout()); // layout: Border Layout
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // design: default closing behavior
+        setSize(800, 600); // design: default size
+        setLayout(new BorderLayout()); // layout: Border Layout
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // design: default closing behavior
 
         createTextPane();
         createSidePanel();
         createSplitPane();
         createMenuBar();
-        createFileMenu();
-        this.setVisible(true);
+        setVisible(true);
 
         // start listening for edits
-        doc.addUndoableEditListener(new MyUndoableEditListener());
-        doc.addDocumentListener(new MyDocumentListener());
+        addListeners();
     }
 
     public void createTextPane() {
@@ -86,16 +87,14 @@ public class GUI extends JFrame {
 
     public void createMenuBar() {
         actions = createActionTable(textPane);
+        JMenu fileMenu = createFileMenu();
         JMenu editMenu = createEditMenu();
         JMenu styleMenu = createStyleMenu();
         menuBar = new JMenuBar();
+        menuBar.add(fileMenu);
         menuBar.add(editMenu);
         menuBar.add(styleMenu);
         this.setJMenuBar(menuBar);
-
-        menuFile = new JMenu("File");
-
-        menuBar.add(menuFile);
     }
 
     protected JMenu createEditMenu() {
@@ -169,25 +168,30 @@ public class GUI extends JFrame {
         return actions.get(name);
     }
 
-    public void createFileMenu() {
-        miNew = new JMenuItem("New");
+    protected JMenu createFileMenu() {
+        JMenu menu = new JMenu("File");
 
-        miOpen = new JMenuItem("Open");
+        newAction = new NewAction();
+        openAction = new OpenAction();
+        saveAction = new SaveAction();
+        saveAsAction = new SaveAsAction();
+        exitAction = new ExitAction();
 
-        miSave = new JMenuItem("Save");
+        menu.add(newAction);
+        menu.add(openAction);
+        menu.add(saveAction);
+        menu.add(saveAsAction);
+        menu.add(exitAction);
 
-        miSaveAs = new JMenuItem("Save As");
-
-        miExit = new JMenuItem("Exit");
-
-        menuFile.add(miNew);
-        menuFile.add(miOpen);
-        menuFile.add(miSave);
-        menuFile.add(miSaveAs);
-        menuFile.add(miExit);
+        return menu;
     }
 
     // listeners
+    public void addListeners(){
+        doc.addUndoableEditListener(new MyUndoableEditListener());
+        doc.addDocumentListener(new MyDocumentListener());
+    }
+
     protected class MyUndoableEditListener implements UndoableEditListener {
         public void undoableEditHappened(UndoableEditEvent e) {
             um.addEdit(e.getEdit());
@@ -212,6 +216,60 @@ public class GUI extends JFrame {
     }
 
     // helper classes
+    public class NewAction extends AbstractAction {
+        public NewAction(){
+            super("New");
+            setEnabled(true);
+        }
+
+        public void actionPerformed(ActionEvent e){
+            file.newFile();
+        }
+    }
+
+    public class OpenAction extends AbstractAction {
+        public OpenAction(){
+            super("Open");
+            setEnabled(true);
+        }
+
+        public void actionPerformed(ActionEvent e){
+            file.open();
+        }
+    }
+
+    public class SaveAction extends AbstractAction {
+        public SaveAction(){
+            super("Save");
+            setEnabled(true);
+        }
+
+        public void actionPerformed(ActionEvent e){
+            file.save();
+        }
+    }
+
+    public class SaveAsAction extends AbstractAction {
+        public SaveAsAction(){
+            super("SaveAs");
+            setEnabled(true);
+        }
+
+        public void actionPerformed(ActionEvent e){
+            file.saveAs();
+        }
+    }
+
+    public class ExitAction extends AbstractAction {
+        public ExitAction(){
+            super("Exit");
+            setEnabled(true);
+        }
+
+        public void actionPerformed(ActionEvent e){
+            file.exit();
+        }
+    }
     public class UndoAction extends AbstractAction {
         public UndoAction() {
             super("Undo");
